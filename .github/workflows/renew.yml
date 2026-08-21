@@ -41,23 +41,21 @@ jobs:
 
       - name: ⬇️ 检出代码
         if: steps.check_date.outputs.should_run == 'true'
-        uses: actions/checkout@v4 # 升级为 v4（更稳定）
+        uses: actions/checkout@v6
 
-      # ===== 核心改动 1: 从 Setup Python 改为 Setup Node.js =====
-      - name: ⚙ 设置 Node.js
+      - name: ⚙ 设置 Python
         if: steps.check_date.outputs.should_run == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-python@v6
         with:
-          node-version: '20'
+          python-version: '3.12'
           
-      # ===== 核心改动 2: 安装 Node.js 库和 Playwright 浏览器依赖 =====
-      - name: 🛠️ 安装脚本依赖 (Playwright等)
+      - name: 🛠️ 安装系统依赖和python依赖
         if: steps.check_date.outputs.should_run == 'true'
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb
-          npm install playwright playwright-extra puppeteer-extra-plugin-stealth axios
-          npx playwright install-deps
+          sudo apt-get install -y xvfb x11-utils xdotool scrot fonts-noto-cjk
+          pip install seleniumbase requests
+          seleniumbase install chromedriver
           
       - name: ⚙ 设置代理 (sing-box)
         if: steps.check_date.outputs.should_run == 'true'
@@ -67,7 +65,6 @@ jobs:
         run: |
           bash <(wget -qO- https://main.ssss.nyc.mn/setup_proxy.sh)
           
-      # ===== 核心改动 3: 运行 Node.js 脚本 =====
       - name: 🚀 运行续期脚本
         if: steps.check_date.outputs.should_run == 'true'
         env:
@@ -75,9 +72,8 @@ jobs:
           KATABUMP_PASSWORD: ${{ secrets.KATABUMP_PASSWORD }}
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
-          PROXY_SERVER: "socks5://127.0.0.1:1080" # 配合你代理脚本的端口
         run: |
-          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" node app.js
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python3 app.py
 
       - name: 🧹 清理旧的工作流运行记录
         if: always()
