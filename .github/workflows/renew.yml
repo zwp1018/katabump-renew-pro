@@ -54,6 +54,8 @@ jobs:
       - name: 🛠️ 安装脚本依赖 (Playwright等)
         if: steps.check_date.outputs.should_run == 'true'
         run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
           npm install playwright playwright-extra puppeteer-extra-plugin-stealth axios
           npx playwright install-deps
           
