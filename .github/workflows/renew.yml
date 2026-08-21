@@ -77,7 +77,7 @@ jobs:
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
           PROXY_SERVER: "socks5://127.0.0.1:1080" # 配合你代理脚本的端口
         run: |
-          node app.js
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" node app.js
 
       - name: 🧹 清理旧的工作流运行记录
         if: always()
